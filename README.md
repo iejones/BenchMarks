@@ -1,8 +1,18 @@
 # Getting Started with Create React App
 
+<<<<<<< HEAD
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
+=======
+# Start with git 
+git clone https://github.com/realassnerdclaire/Cougle.git
+
+
+# React setup 
+npm init --yes
+
+>>>>>>> bb3994b3770af1e40ddb53fa0e8d539041ec0c76
 
 In the project directory, you can run:
 
