@@ -10,7 +10,7 @@ cd Cougle
 
 ls 
 
-sudo npm init -y
+npm init -y
 
 ls
 
