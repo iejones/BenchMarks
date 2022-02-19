@@ -7,7 +7,8 @@ import RICIBs from 'react-individual-character-input-boxes';
 export default function Word() {
 
     function handleOutputString(string) {
-        this.setState({ outputString: string })
+        return string;
+        //this.setState({ outputString: string })
     }
 
     return (
