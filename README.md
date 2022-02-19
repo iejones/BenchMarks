@@ -1,11 +1,9 @@
-# Getting Started with Create React App
+# Cougle
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A boardgame to learn the reserouce for Coug. Cougs help Coug!
 
-## Available Scripts
 # Start with git 
 git clone https://github.com/realassnerdclaire/Cougle.git
-
 
 # React setup 
 npm init --yes
