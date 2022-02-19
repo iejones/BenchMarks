@@ -14,3 +14,11 @@ node -v
 npm -v
 
 node
+
+var i=10 -> undefined
+
+var i=20 -> undefined
+
+console.log(i+j) -> 30, undefined
+
+
