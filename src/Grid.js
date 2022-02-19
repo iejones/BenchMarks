@@ -5,7 +5,7 @@ import Word from "./Word"
 export default function Grid() {
   return (
     <div>
-        <Word/>
+        <Word input/>
         <Word/>
         <Word/>
         <Word/>
@@ -15,3 +15,9 @@ export default function Grid() {
     </div>
   )
 }
+
+
+const input = [
+    { className: "third-box" },
+    { style: { "color": "green" } },
+  ]  

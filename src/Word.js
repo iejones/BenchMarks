@@ -4,7 +4,7 @@ import Letter from "./Letter"
 
 import RICIBs from 'react-individual-character-input-boxes';
 
-export default function Word() {
+export default function Word( input) {
 
     function handleOutputString(string) {
         return string;
@@ -15,12 +15,8 @@ export default function Word() {
         <div>
             <RICIBs
                 amount={5}
-                autoFocus
                 handleOutputString={handleOutputString}
-                inputProps={[
-                    { className: "first-box" },
-                    { style: { "color": "black" } },
-                  ]}        
+                inputProps= {input}      
                 inputRegExp={/^[a-z]$/}
             />
         </div>
