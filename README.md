@@ -15,6 +15,9 @@ npm -v
 
 node
 
+pwd
+
+##Test
 var i=10 -> undefined
 
 var i=20 -> undefined
