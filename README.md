@@ -25,4 +25,14 @@ var i=20 -> undefined
 
 console.log(i+j) -> 30, undefined
 
+# Settig up and running MongoDB
+download MongoDB : https://www.mongodb.com/try/download/community
+
+download homebrew : https://brew.sh
+
+
+
+
+
+
 
