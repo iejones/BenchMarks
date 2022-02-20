@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "cougle",
   "version": "0.1.0",
   "private": true,
@@ -36,16 +35,4 @@
       "last 1 safari version"
     ]
   }
-=======
-  "name": "desktop",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
->>>>>>> bb3994b3770af1e40ddb53fa0e8d539041ec0c76
 }
