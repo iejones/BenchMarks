@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react';
 import styled from "styled-components";
 import './App.css';
 
+const colors = {0:"#53565A", 1:"grey", 2: "red", 3:"orange", 4:"yellow", 5:"green", 6:"blue"};
+
+
 function App() {
   const [wordGrid, setWordGrid] = useState([]);
+  const [currentColor, setCurrentColor] = useState(2);
   const [currentFocusedRow, setCurrentFocusedRow] = useState(1);
   const [currentFocusedColumn, setCurrentFocusedColumn] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const start = "meals";
   const end = "bongo";
-  const rowCounter = 0
   useEffect(() => {
     function initializeWordGrid() {
       let newWordGrid = [];
@@ -19,13 +22,13 @@ function App() {
 
 
       for (let i = 0; i < 5; i++) {
-        newWordGrid[0].push({ letter: start[i], state: "empty", disabled:true })
-        newWordGrid[5].push({ letter: end[i], state: "empty", disabled:true  })
+        newWordGrid[0].push({ letter: start[i], color: 0, disabled:true })
+        newWordGrid[5].push({ letter: end[i], color: 0, disabled:true  })
       }
 
       for (let i = 1; i < 5; i++) {
         for (let j = 0; j < 5; j++) {
-          newWordGrid[i].push({ letter: "", state: "empty", disabled:true  })
+          newWordGrid[i].push({ letter: "", color: 1, disabled:true  })
         }
       }
       newWordGrid[1][0].disabled=false;
@@ -62,6 +65,7 @@ function App() {
         setCurrentFocusedColumn(currentFocusedColumn + 1);
         console.log(column+1);
         newWordGrid[row][column + 1].disabled = false;
+
         document.getElementById(row.toString() + column.toString()).blur();
         let nextBox = document.getElementById(row.toString() + (column + 1).toString());
         nextBox.focus();
@@ -115,7 +119,11 @@ function App() {
       isCorrect = false;
       console.log("hit3");
     }
-    return isCorrect;
+
+    if (!isCorrect)
+      return [isCorrect];
+    else
+      return [isCorrect, priorWordCopy[0], currentWordCopy[0], priorWordCopy.length];
   }
 
   function myFocusFunction(e, row, col) {
@@ -131,16 +139,51 @@ function App() {
     // todo check to see if its in giant word list
 
     // check word is "one away"/meets transform rules
-    isCorrect = checkOneAway(priorWord, currentWord, false);
+    let output = checkOneAway(priorWord, currentWord, false);
+    isCorrect = output[0];
 
     if (isCorrect === true) {
+      let priorChanged = output[1];
+      let currentChanged = output[2];
+      let times = output[3];
+      for(let i = 0; i < priorWord.length; i++){
+        if(priorWord[i].letter === priorChanged){
+          newWordGrid[currentFocusedRow - 1][i].color = currentColor;
+        }
+        if(currentWord[i].letter === currentChanged){
+          if (times > 0){
+            newWordGrid[currentFocusedRow][i].color = currentColor;
+            times = times - 1;
+          }
+        }
+      }
+      setCurrentColor(currentColor + 1);
       console.log(isCorrect);
       newWordGrid[currentFocusedRow + 1][0].disabled=false;
+      for (let i =0; i < 5; i++){
+        newWordGrid[currentFocusedRow][i].disabled=true;
+      }
+      document.getElementById((currentFocusedRow + 1).toString() + "0").focus();
       setCurrentFocusedRow(currentFocusedRow + 1);
       setCurrentFocusedColumn(0);
-    }
 
-    if (isCorrect && checkOneAway(currentWord, end, true)) {
+    }
+    output = checkOneAway(currentWord, end, true)
+    if (isCorrect && output[0]) {
+      let currentChanged = output[1];
+      let endChanged = output[2];
+      let times = output[3];
+      for(let i = 0; i < priorWord.length; i++){
+        if(currentWord[i].letter === currentChanged){
+          newWordGrid[currentFocusedRow][i].color = currentColor+1;
+        }
+        if(newWordGrid[5][i].letter === endChanged){
+          if(times > 0){
+            newWordGrid[5][i].color = currentColor+1;
+            times = times - 1;
+          }
+        }
+      }
       setIsGameOver(true);
     }
     setWordGrid(newWordGrid);
@@ -163,16 +206,19 @@ function App() {
       }
       setWordGrid(newWordGrid);
     }
+    else if(key === 13){
+      handleSubmit();
+    }
   }
 
   return (
     <Div>
-      {isGameOver && <div>Game Over</div>}
+      {isGameOver && <div>YOU WIN</div>}
       {wordGrid.map((row, rowIndex) => (
         <RowWrapper key={rowIndex}>
           {row.map((col, colIndex) => (
             <Letter
-              status={col.state}
+              status={col.color}
               key={colIndex}
               value={wordGrid[rowIndex][colIndex].letter}
               onChange={(e) => handleChange(e, rowIndex, colIndex)}
@@ -192,15 +238,7 @@ function App() {
 const Letter = styled.input`
   font-size:56px;
   background-color: ${(props) => {
-    if (props.status === "correct") {
-      return "green";
-    } else if (props.status === "wrongposition") {
-      return "yellow";
-    } else if (props.status === "incorrect") {
-      return "red";
-    } else if (props.status === "empty") {
-      return "grey";
-    }
+    return colors[props.status];
   }};
   margin-right: 2px;
   margin-bottom: 6px;
