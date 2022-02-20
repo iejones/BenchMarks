@@ -1,38 +1,24 @@
 # Cougle
 
-A boardgame to learn the reserouce for Coug. Cougs help Coug!
+Enjoy solving a word game while learning about WSU reasources! Each puzzle's starting word relates to a wsu resource.
+
+## Game Rules
+Transform the start word to the final word.
+
+For each step:
+* Change one letter to any other letter
+* All instances of the letter must change
+* Only real words are allowed
+
+For example, for o->e, woody becomes weedy.     
+ 
+You have 5 steps.
 
 # Start with git 
 git clone https://github.com/realassnerdclaire/Cougle.git
 
-# React setup 
-npm init --yes
+# React App
+App made with [create react app](https://create-react-app.dev/).  You will need to have [Node >= 14.0.0 and npm >= 5.6](https://nodejs.org/en/). Once npm installed, run with `npm start`.
 
-# Settig up and running node.js
-node -v
-
-npm -v
-
-node
-
-pwd
-
-## Test
-
-var i=10 -> undefined
-
-var i=20 -> undefined
-
-console.log(i+j) -> 30, undefined
-
-# Settig up and running MongoDB
-download MongoDB : https://www.mongodb.com/try/download/community
-
-download homebrew : https://brew.sh
-
-
-
-
-
-
-
+# References
+We started by referencing this [tutorial](https://www.youtube.com/watch?v=BE25Mf8t5DE&t=0s).
