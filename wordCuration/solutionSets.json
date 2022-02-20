@@ -1,25 +1,48 @@
 {
     "tutor": [
         "tutor",
-        "rutty",
-        "ruddy",
-        "duddy",
-        "daddy"
+        "utter",
+        "upper",
+        "paper",
+        "apple"
     ],
     "meals": [
         "meals",
-        "laces",
-        "claws",
-        "schwa",
-        "watch",
-        "witch"
+        "bales",
+        "beads",
+        "bread",
+        "board",
+        "brood"
     ],
     "cream": [
         "cream",
-        "mares",
-        "sawer",
-        "sward",
-        "words",
-        "woods"
+        "brace",
+        "crabs",
+        "barks",
+        "banks",
+        "bunks"
+    ],
+    "frank": [
+        "frank",
+        "ranks",
+        "rains",
+        "basin",
+        "bison",
+        "boils"
+    ],
+    "apply": [
+        "apply",
+        "apple",
+        "sales",
+        "ashes",
+        "shoes"
+    ],
+    "clubs": [
+        "clubs",
+        "curls",
+        "crust",
+        "spurt",
+        "sport",
+        "troop"
     ]
 }

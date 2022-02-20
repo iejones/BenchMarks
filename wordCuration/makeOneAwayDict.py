@@ -87,7 +87,7 @@ def makeOneAwayDictionary(words):
 if __name__ == "__main__":
     if testOneAway():
         words = loadWords()
-        oneAwayDictionary = makeOneAwayDictionary(words)
+        oneAwayDictionary = makeOneAwayDictionary(words[:2000]) # limiting to earlier words so more frequent words are used
         with open("oneAwayDictionary.json", "w") as f:
             json_object = json.dumps(oneAwayDictionary, indent = 4) 
             f.write(json_object)
