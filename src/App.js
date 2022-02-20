@@ -17,6 +17,8 @@ function App() {
   const [isGameOver, setIsGameOver] = useState(false);
   const start = "meals";
   const end = "bongo";
+  // const start = "tutor";
+  // const end = "apple";
   console.log(typeof(words));
   useEffect(() => {
     function initializeWordGrid() {
@@ -27,13 +29,13 @@ function App() {
 
 
       for (let i = 0; i < 5; i++) {
-        newWordGrid[0].push({ letter: start[i], color: 0, disabled:true })
-        newWordGrid[5].push({ letter: end[i], color: 0, disabled:true  })
+        newWordGrid[0].push({ letter: start[i], color: 0, disabled:true, wrong:false })
+        newWordGrid[5].push({ letter: end[i], color: 0, disabled:true, wrong:false   })
       }
 
       for (let i = 1; i < 5; i++) {
         for (let j = 0; j < 5; j++) {
-          newWordGrid[i].push({ letter: "", color: 1, disabled:true  })
+          newWordGrid[i].push({ letter: "", color: 1, disabled:true, wrong:false  })
         }
       }
       newWordGrid[1][0].disabled=false;
@@ -144,75 +146,86 @@ function App() {
     for(let i = 0; i < currentWord.length; i++){
       wordCheck += currentWord[i].letter;
     }
-    if (!words.includes(wordCheck))
+    if (words.includes(wordCheck))
     {
-      return;
-    }
-    
-    let output = checkOneAway(priorWord, currentWord, false);
-    isCorrect = output[0];
+      let output = checkOneAway(priorWord, currentWord, false);
+      isCorrect = output[0];
 
-    if (isCorrect === true) {
-      let priorChanged = output[1];
-      let currentChanged = output[2];
-      let times = output[3];
-      for(let i = 0; i < priorWord.length; i++){
-        if(priorWord[i].letter === priorChanged){
-          newWordGrid[currentFocusedRow - 1][i].color = currentColor;
-        }
-        if(currentWord[i].letter === currentChanged){
-          if (times > 0){
-            newWordGrid[currentFocusedRow][i].color = currentColor;
-            times = times - 1;
+      if (isCorrect === true) {
+        let priorChanged = output[1];
+        let currentChanged = output[2];
+        let times = output[3];
+        for(let i = 0; i < priorWord.length; i++){
+          if(priorWord[i].letter === priorChanged){
+            newWordGrid[currentFocusedRow - 1][i].color = currentColor;
+          }
+          if(currentWord[i].letter === currentChanged){
+            if (times > 0){
+              newWordGrid[currentFocusedRow][i].color = currentColor;
+              times = times - 1;
+            }
           }
         }
-      }
-      setCurrentColor(currentColor + 1);
-      console.log(isCorrect);
-      newWordGrid[currentFocusedRow + 1][0].disabled=false;
-      for (let i =0; i < 5; i++){
-        newWordGrid[currentFocusedRow][i].disabled=true;
-      }
-      document.getElementById((currentFocusedRow + 1).toString() + "0").focus();
-      setCurrentFocusedRow(currentFocusedRow + 1);
-      setCurrentFocusedColumn(0);
-
-    }
-    output = checkOneAway(currentWord, end, true)
-    if (isCorrect && output[0]) {
-      let currentChanged = output[1];
-      let endChanged = output[2];
-      let times = output[3];
-      for(let i = 0; i < priorWord.length; i++){
-        if(currentWord[i].letter === currentChanged){
-          newWordGrid[currentFocusedRow][i].color = currentColor+1;
+        setCurrentColor(currentColor + 1);
+        console.log(isCorrect);
+        newWordGrid[currentFocusedRow + 1][0].disabled=false;
+        for (let i =0; i < 5; i++){
+          newWordGrid[currentFocusedRow][i].disabled=true;
         }
-        if(newWordGrid[5][i].letter === endChanged){
-          if(times > 0){
-            newWordGrid[5][i].color = currentColor+1;
-            times = times - 1;
+        document.getElementById((currentFocusedRow + 1).toString() + "0").focus();
+        setCurrentFocusedRow(currentFocusedRow + 1);
+        setCurrentFocusedColumn(0);
+
+      }
+      output = checkOneAway(currentWord, end, true)
+      if (isCorrect && output[0]) {
+        let currentChanged = output[1];
+        let endChanged = output[2];
+        let times = output[3];
+        for(let i = 0; i < priorWord.length; i++){
+          if(currentWord[i].letter === currentChanged){
+            newWordGrid[currentFocusedRow][i].color = currentColor+1;
+          }
+          if(newWordGrid[5][i].letter === endChanged){
+            if(times > 0){
+              newWordGrid[5][i].color = currentColor+1;
+              times = times - 1;
+            }
           }
         }
+        setIsGameOver(true);
+        document.getElementById((currentFocusedRow + 1).toString() + "0").blur();
+        newWordGrid[currentFocusedRow + 1][0].disabled = true;
       }
-      setIsGameOver(true);
+    } else{
+      isCorrect = false;
+    }
+    if (!isCorrect){
+      for(let i = 0; i < 5; i++){
+        newWordGrid[currentFocusedRow][i].wrong = true;
+      }
     }
     setWordGrid(newWordGrid);
   };
 
+
   function backspace(event, row, column){
     var key = event.keyCode || event.charCode;
-    if (key === 8)
+    let currentColumn = 4;
+    if (key === 8 && (row !== 0 && row !== 5 && row >= currentFocusedRow))
     {
       const newWordGrid = [...wordGrid];
-      newWordGrid[row][column].letter = '';
-      if (currentFocusedColumn > 0){
-        setCurrentFocusedColumn(currentFocusedColumn - 1);
-        newWordGrid[row][column].disabled = true;
-        newWordGrid[row][column - 1].disabled = false;
+      
+      while (currentColumn >= 0){
+        newWordGrid[row][currentColumn].letter = '';
+        newWordGrid[row][currentColumn].disabled = true;
+        newWordGrid[row][currentColumn].wrong = false;
         document.getElementById(row.toString() + column.toString()).blur();
-        let nextBox = document.getElementById(row.toString() + (column - 1).toString());
-        nextBox.focus();
+        currentColumn--;
       }
+      newWordGrid[row][0].disabled = false;
+      document.getElementById(row.toString() + "0").focus();
+      setCurrentFocusedColumn(0);
       setWordGrid(newWordGrid);
     }
     else if(key === 13){
@@ -235,6 +248,7 @@ function App() {
               autoFocus={!wordGrid[rowIndex][colIndex].disabled}
               onKeyDown = {(e) => backspace(e, rowIndex, colIndex)}
               id = {rowIndex.toString() + colIndex.toString()}
+              style={wordGrid[rowIndex][colIndex].wrong ? { color: '#D2042D' } : { color: 'black' }}
             />
           ))}
         </RowWrapper>
