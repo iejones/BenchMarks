@@ -3,7 +3,10 @@ import styled from "styled-components";
 import './App.css';
 import words from "./words.js"
 
-const colors = {0:"#53565A", 1:"grey", 2: "red", 3:"orange", 4:"yellow", 5:"green", 6:"blue"};
+//const colors = {0:"#53565A", 1:"grey", 2: "#ED5564", 3:"#FFCE54", 4:"#A0D568", 5:"#4FC1E8", 6:"#AC92EB"};
+//const colors = {0:"#53565A", 1:"grey", 2: "#173F5F", 3:"#20639B", 4:"#3CAEA3", 5:"#F6D55C", 6:"#ED553B"};
+//const colors = {0:"#53565A", 1:"grey", 2: "#EDAE49", 3:"#D1495B", 4:"#00798C", 5:"#30638E", 6:"#003D5B"};
+const colors = {0:"#53565A", 1:"grey", 2: "#4172F3", 3:"#A012DA", 4:"#DC267F", 5:"#FE6100", 6:"#FFB000"};
 
 
 function App() {
@@ -220,7 +223,6 @@ function App() {
   return (
     <Div>
       <CougleTitle><span style={{ color: '#981E32' }}>Coug</span><span style={{ color: '#53565A' }}>le</span></CougleTitle>
-      {isGameOver && <div>YOU WIN</div>}
       {wordGrid.map((row, rowIndex) => (
         <RowWrapper key={rowIndex}>
           {row.map((col, colIndex) => (
@@ -238,6 +240,7 @@ function App() {
         </RowWrapper>
       ))}
       <SubmitButton onClick={handleSubmit}>Submit</SubmitButton>
+      {isGameOver && <div>YOU WIN</div>}
     </Div>
   );
 }
@@ -250,11 +253,12 @@ const Letter = styled.input`
   margin-right: 2px;
   margin-bottom: 6px;
   margin-top: 2px;
-  padding: 2px;
+  padding: 5px;
+  border-color: #53565A;
   width: 60px;
   height: 60px;
   text-align: center;
-  border-radius: 5px;
+  border-radius: 8px;
 `;
 
 const Div = styled.div`
@@ -262,7 +266,7 @@ const Div = styled.div`
   justify-content: center;
   flex-direction: column;
   align-items: center;
-  background-color: #f5f5f5;
+  color:white;
 `;
 
 const RowWrapper = styled.div`
@@ -271,15 +275,16 @@ const RowWrapper = styled.div`
 `;
 
 const SubmitButton = styled.button`
-  font-size: 24px;
+  font-size: 30px;
   border-radius: 8px;
   background-color: #981E32;
+  border-color: #981E32;
   padding: 14px;
-  margin: 16px;
+  margin: 32px;
 `;
 
 const CougleTitle = styled.h1`
-
+  font-size: 52px;
 `
 
 export default App;
