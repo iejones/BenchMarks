@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from "styled-components";
 import './App.css';
+import words from "./words.js"
 
 const colors = {0:"#53565A", 1:"grey", 2: "red", 3:"orange", 4:"yellow", 5:"green", 6:"blue"};
 
@@ -13,6 +14,7 @@ function App() {
   const [isGameOver, setIsGameOver] = useState(false);
   const start = "meals";
   const end = "bongo";
+  console.log(typeof(words));
   useEffect(() => {
     function initializeWordGrid() {
       let newWordGrid = [];
@@ -135,6 +137,15 @@ function App() {
     // todo check to see if its in giant word list
 
     // check word is "one away"/meets transform rules
+    let wordCheck = "";
+    for(let i = 0; i < currentWord.length; i++){
+      wordCheck += currentWord[i].letter;
+    }
+    if (!words.includes(wordCheck))
+    {
+      return;
+    }
+    
     let output = checkOneAway(priorWord, currentWord, false);
     isCorrect = output[0];
 
@@ -208,6 +219,7 @@ function App() {
 
   return (
     <Div>
+      <CougleTitle><span style={{ color: '#981E32' }}>Coug</span><span style={{ color: '#53565A' }}>le</span></CougleTitle>
       {isGameOver && <div>YOU WIN</div>}
       {wordGrid.map((row, rowIndex) => (
         <RowWrapper key={rowIndex}>
@@ -250,6 +262,7 @@ const Div = styled.div`
   justify-content: center;
   flex-direction: column;
   align-items: center;
+  background-color: #f5f5f5;
 `;
 
 const RowWrapper = styled.div`
@@ -264,5 +277,9 @@ const SubmitButton = styled.button`
   padding: 14px;
   margin: 16px;
 `;
+
+const CougleTitle = styled.h1`
+
+`
 
 export default App;
