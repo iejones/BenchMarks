@@ -4,17 +4,25 @@ import './App.css';
 
 function App() {
   const [wordGrid, setWordGrid] = useState([]);
-  const [currentFocusedRow, setCurrentFocusedRow] = useState(0);
+  const [currentFocusedRow, setCurrentFocusedRow] = useState(1);
   const [isGameOver, setIsGameOver] = useState(false);
-  const solution = "daisy";
-
+  const start = "meals";
+  const end = "bongo";
+  const rowCounter = 0
   useEffect(() => {
     function initializeWordGrid() {
       let newWordGrid = [];
       for (let i = 0; i<6; i++){
         newWordGrid.push([])
       }
-      for(let i = 0; i < 6; i++){
+
+      
+      for(let i = 0; i < 5; i++){
+        newWordGrid[0].push({letter:start[i], state:"empty"})
+        newWordGrid[5].push({letter:end[i], state:"empty"})
+      }      
+      
+      for(let i = 1; i < 5; i++){
         for (let j=0; j<5; j++){
           newWordGrid[i].push({letter:"", state:"empty"})
         }
@@ -31,8 +39,6 @@ function App() {
   const handleChange = (e, row, column)=> {
     const newWordGrid = [...wordGrid]
 
-    console.log(e.target.value)
-    console.log(newWordGrid[row][column].letter)
     if (e.target.value.match(/^[a-z]$/))
     {
       newWordGrid[row][column].letter = e.target.value;
@@ -41,29 +47,74 @@ function App() {
     }
   }
 
+  function checkOneAway(priorWord, currentWord, endFlag){
+    // check word is "one away"/meets transform rules
+    var priorWordCopy = "";
+    var currentWordCopy = "";
+    var origonalCurrentWord = "";
+    var discarded = "";
+    var isCorrect = true;
+    for( let i=0; i<priorWord.length; i++){
+      priorWordCopy += priorWord[i].letter;
+      if(endFlag){
+        currentWordCopy += currentWord[i];
+        origonalCurrentWord += currentWord[i];
+      } else {
+        currentWordCopy += currentWord[i].letter;
+        origonalCurrentWord += currentWord[i].letter;
+      }
+    }
+
+    for( let i=0; i<priorWord.length; i++){
+      if (origonalCurrentWord.includes(priorWord[i].letter)) {
+        priorWordCopy = priorWordCopy.replace(priorWord[i].letter, "");
+        currentWordCopy =currentWordCopy.replace(priorWord[i].letter, "");
+        discarded += priorWord[i].letter;
+      }
+    }
+    console.log(priorWordCopy);
+    console.log(currentWordCopy);
+    for(let i = 1; i<priorWordCopy.length; i++){
+      if(priorWordCopy[i] !== priorWordCopy[0]){
+        isCorrect = false;
+        console.log("hit1");
+      }
+    }
+    if(priorWordCopy.length === 0 && currentWordCopy.length === 0){
+      isCorrect=false;
+    }
+    if (priorWordCopy.length !== currentWordCopy.length){
+      console.log("hit2");
+      isCorrect = false;
+    } 
+    if(discarded.includes(priorWordCopy[0])){
+      isCorrect = false;
+      console.log("hit3");
+    }
+    return isCorrect;
+  }
+
   const handleSubmit = () => {
     const newWordGrid = [...wordGrid]
+    const priorWord = newWordGrid[currentFocusedRow - 1];
     const currentWord = newWordGrid[currentFocusedRow];
     let isCorrect = true;
-    for (let i = 0; i < currentWord.length; i++){
-      if (currentWord[i].letter === solution[i]) {
-        currentWord[i].state = "correct";
-      }
-      else if (solution.includes(currentWord[i].letter)){
-        currentWord[i].state = "wrongposition";
-        isCorrect = false;
-      }
-      else {
-        currentWord[i].state = "incorrect";
-        isCorrect = false;
-      }
+    
+    // todo check to see if its in giant word list
 
-      if (isCorrect === false){
-        setCurrentFocusedRow(currentFocusedRow + 1);
-      }
-      setIsGameOver(isCorrect);
-      setWordGrid(newWordGrid);
+    // check word is "one away"/meets transform rules
+    isCorrect = checkOneAway(priorWord, currentWord, false);
+
+    if (isCorrect === true){
+      console.log(isCorrect);
+      setCurrentFocusedRow(currentFocusedRow + 1);
     }
+
+    if (isCorrect && checkOneAway(currentWord, end, true)){
+      setIsGameOver(true);
+    }
+    setWordGrid(newWordGrid);
+  
   };
 
   return(
