@@ -126,10 +126,6 @@ function App() {
       return [isCorrect, priorWordCopy[0], currentWordCopy[0], priorWordCopy.length];
   }
 
-  function myFocusFunction(e, row, col) {
-    //document.getElementById(row.toString() + col.toString()).style.backgroundColor = "yellow";
-  }
-
   const handleSubmit = () => {
     const newWordGrid = [...wordGrid]
     const priorWord = newWordGrid[currentFocusedRow - 1];
@@ -187,7 +183,6 @@ function App() {
       setIsGameOver(true);
     }
     setWordGrid(newWordGrid);
-
   };
 
   function backspace(event, row, column){
