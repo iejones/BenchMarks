@@ -1,13 +1,24 @@
 import { useEffect, useState } from 'react';
+import React, { Component }  from 'react';
+
 import styled from "styled-components";
 import './App.css';
+import './style.css';
+import Popup from './Popup';
 import words from "./words.js"
 
-//const colors = {0:"#53565A", 1:"grey", 2: "#ED5564", 3:"#FFCE54", 4:"#A0D568", 5:"#4FC1E8", 6:"#AC92EB"};
-//const colors = {0:"#53565A", 1:"grey", 2: "#173F5F", 3:"#20639B", 4:"#3CAEA3", 5:"#F6D55C", 6:"#ED553B"};
-//const colors = {0:"#53565A", 1:"grey", 2: "#EDAE49", 3:"#D1495B", 4:"#00798C", 5:"#30638E", 6:"#003D5B"};
+const phrases = {
+  "tutor":"Stuck on a homework assignment? Don’t go it alone - visit a TUTOR! Access tutoring for your VCEA classes in person or online. Visit the VCEA tutoring schedule for more information.",
+  "meals":"Cougs don't let cougs go hungry. Get assistance from the cougar food pantry!",
+  "cream":"Visit the WSU Creamery - Ferdinands - for some delicious cheese and ice CREAM.",
+  "frank":"Interested in entrepreneurship? The Harold FRANK Engineering Entrepreneurship Institute has opportunities for you!",
+  "apply":"Are you ready to apply for internships and full-time positions? Don't be intimidated. VCEA Internships and Career Services has the resources, workshops, and one-on-one help you need.",
+  "clubs":"Meet your peers and gain hands-on experience by joining a club! Look at all the clubs VCEA has to offer."
+}
+const phraseLink = {0:"https://vcea.wsu.edu/student-success/tutoring/tutoring-schedule/", 1:"https://studentcare.wsu.edu/student-resources/food-assistance/wsu-pullman/", 2:"https://creamery.wsu.edu/ferdinands-ice-cream-shoppe/", 3:"https://vcea.wsu.edu/entrepreneurship/", 4:"https://vcea.wsu.edu/student-success/internships-careers/", 5:"https://vcea.wsu.edu/student-success/clubs/"};
+const keyWordsStart = {0:"tutor", 1:"meals", 2:"cream", 3:"frank", 4:"apply", 5:"clubs"};
+const keyWordsEnd = {0:"apple",1:"brood", 2:"bunks", 3: "boils" , 4:"shoes" ,5:"troop"};
 const colors = {0:"#53565A", 1:"grey", 2: "#4172F3", 3:"#A012DA", 4:"#DC267F", 5:"#FE6100", 6:"#FFB000"};
-
 
 function App() {
   const [wordGrid, setWordGrid] = useState([]);
@@ -20,6 +31,26 @@ function App() {
   // const start = "tutor";
   // const end = "apple";
   console.log(typeof(words));
+  const [isVictoryOpen, setVictoryIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
+  const [rulesIsOpen, setRulesIsOpen] = useState(true);
+  const [startWord, setStartWord] = useState(0);
+  const [endWord, setEndWord] = useState(0);
+  const togglePopup = () => {
+    setIsOpen(!isOpen);
+    console.log(isOpen);
+  }
+  const toggleRulesPopup = () => {
+    setRulesIsOpen(!rulesIsOpen);
+    console.log(rulesIsOpen);
+  }
+
+  const toggleVictoryPopup = () => {
+    setVictoryIsOpen(!isVictoryOpen);
+    console.log("Disabling")
+    console.log(isVictoryOpen);
+  }
+
   useEffect(() => {
     function initializeWordGrid() {
       let newWordGrid = [];
@@ -27,10 +58,9 @@ function App() {
         newWordGrid.push([])
       }
 
-
       for (let i = 0; i < 5; i++) {
-        newWordGrid[0].push({ letter: start[i], color: 0, disabled:true, wrong:false })
-        newWordGrid[5].push({ letter: end[i], color: 0, disabled:true, wrong:false   })
+        newWordGrid[0].push({ letter: keyWordsStart[startWord][i], color: 0, disabled:true, wrong:false })
+        newWordGrid[5].push({ letter: keyWordsEnd[endWord][i], color: 0, disabled:true, wrong:false   })
       }
 
       for (let i = 1; i < 5; i++) {
@@ -47,9 +77,6 @@ function App() {
       initializeWordGrid();
     }
   });
-
-
-
 
 
   const handleChange = (e, row, column) => {
@@ -132,6 +159,30 @@ function App() {
     else
       return [isCorrect, priorWordCopy[0], currentWordCopy[0], priorWordCopy.length];
   }
+  const handleNewGame = () => {
+    let newWordGrid = [];
+    for (let i = 0; i < 6; i++) {
+      newWordGrid.push([])
+    }
+    setStartWord(startWord + 1 % 6);
+    setEndWord(endWord + 1 % 6);
+    setIsOpen(true);
+    for (let i = 0; i < 5; i++) {
+      newWordGrid[0].push({ letter: keyWordsStart[startWord + 1][i], color: 0, disabled:true, wrong:false })
+      newWordGrid[5].push({ letter: keyWordsEnd[endWord + 1][i], color: 0, disabled:true, wrong:false   })
+    }
+    for (let i = 1; i < 5; i++) {
+      for (let j = 0; j < 5; j++) {
+        newWordGrid[i].push({ letter: "", color: 1, disabled:true, wrong:false  })
+      }
+    }
+    newWordGrid[1][0].disabled=false;
+    setWordGrid(newWordGrid);
+  }
+
+  const handleRules = () => {
+    setRulesIsOpen(!rulesIsOpen);
+  }
 
   const handleSubmit = () => {
     const newWordGrid = [...wordGrid]
@@ -204,6 +255,8 @@ function App() {
       for(let i = 0; i < 5; i++){
         newWordGrid[currentFocusedRow][i].wrong = true;
       }
+      setIsGameOver(true);
+      setVictoryIsOpen(true);
     }
     setWordGrid(newWordGrid);
   };
@@ -235,7 +288,39 @@ function App() {
 
   return (
     <Div>
+      {rulesIsOpen && <Popup
+      content={<>
+        <b className='victory'>Rules</b>
+        <p>Transform and scramble words letter at a time. Change one of the letters in the word at a time and turn it into a new word.<br/> 
+          Changing one letter in a word changes all the other letters in that word that are the same.<br/> For example, for o-{'>'}e, woody becomes weedy. 
+          The goal is to transform the starting word to the final word!<br/>
+        </p>
+        
+        </>}
+      handleClose={toggleRulesPopup}
+      />}
+
+    {isOpen && <Popup
+      content={<>
+        <b>Cougs help Cougs!</b>
+        <p>Coug Word Game</p>
+        <b>"{keyWordsStart[startWord]}"</b>
+        <p>{phrases[keyWordsStart[startWord]]}</p>
+        <a href={phraseLink[startWord]}>Click Here To Learn More!</a>
+        </>}
+      handleClose={togglePopup}
+      />}
+
       <CougleTitle><span style={{ color: '#981E32' }}>Coug</span><span style={{ color: '#53565A' }}>le</span></CougleTitle>
+      {isGameOver && isVictoryOpen && <Popup
+      content={<>
+        <b className='victory'>Victory!</b>
+        <br></br>
+        <b className='center'>Go Cougs!</b>
+        </>
+        }
+        handleClose={toggleVictoryPopup}
+      />}
       {wordGrid.map((row, rowIndex) => (
         <RowWrapper key={rowIndex}>
           {row.map((col, colIndex) => (
@@ -254,7 +339,10 @@ function App() {
         </RowWrapper>
       ))}
       <SubmitButton onClick={handleSubmit}>Submit</SubmitButton>
-      {isGameOver && <div>YOU WIN</div>}
+      <row>
+        <SubmitButton style={{marginRight: "4px"}} onClick={handleNewGame}>New Game</SubmitButton>
+        <SubmitButton onClick={handleRules}>Rules</SubmitButton>
+      </row>
     </Div>
   );
 }
@@ -280,7 +368,6 @@ const Div = styled.div`
   justify-content: center;
   flex-direction: column;
   align-items: center;
-  color:white;
 `;
 
 const RowWrapper = styled.div`
