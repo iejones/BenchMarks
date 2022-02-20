@@ -21,4 +21,6 @@ git clone https://github.com/realassnerdclaire/Cougle.git
 App made with [create react app](https://create-react-app.dev/).  You will need to have [Node >= 14.0.0 and npm >= 5.6](https://nodejs.org/en/). Once npm installed, run with `npm start`.
 
 # References
-We started by referencing this [tutorial](https://www.youtube.com/watch?v=BE25Mf8t5DE&t=0s).
+We were inspired to make a word game by [wordle](https://www.nytimes.com/games/wordle/index.html), but our game is distinct.
+
+We started by referencing this [tutorial](https://www.youtube.com/watch?v=BE25Mf8t5DE&t=0s) that was a rough attempt at copying wordle.
