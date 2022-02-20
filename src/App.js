@@ -26,8 +26,8 @@ function App() {
   const [currentFocusedRow, setCurrentFocusedRow] = useState(1);
   const [currentFocusedColumn, setCurrentFocusedColumn] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
-  const start = "meals";
-  const end = "bongo";
+  //const start = "meals";
+ // const end = "bongo";
   // const start = "tutor";
   // const end = "apple";
   console.log(typeof(words));
@@ -37,10 +37,18 @@ function App() {
   const [startWord, setStartWord] = useState(0);
   const [endWord, setEndWord] = useState(0);
   const togglePopup = () => {
+    if(isOpen){
+      // reset focus
+      document.getElementById(currentFocusedRow.toString() + currentFocusedColumn.toString()).focus();
+    }
     setIsOpen(!isOpen);
     console.log(isOpen);
   }
   const toggleRulesPopup = () => {
+    if(rulesIsOpen){
+      // reset focus
+      document.getElementById(currentFocusedRow.toString() + currentFocusedColumn.toString()).focus();
+    }
     setRulesIsOpen(!rulesIsOpen);
     console.log(rulesIsOpen);
   }
@@ -134,6 +142,7 @@ function App() {
         discarded += priorWord[i].letter;
       }
     }
+    
     console.log(priorWordCopy);
     console.log(currentWordCopy);
     for (let i = 1; i < priorWordCopy.length; i++) {
@@ -164,12 +173,16 @@ function App() {
     for (let i = 0; i < 6; i++) {
       newWordGrid.push([])
     }
-    setStartWord(startWord + 1 % 6);
-    setEndWord(endWord + 1 % 6);
+
+    let newStartWord = (startWord + 1) % 6; // set won't occur until after function ends, so need temp for call below so wrapped around (+ 1 will not work for wrapping around)
+    let newEndWord = (endWord + 1 )% 6;
+    setStartWord(newStartWord);
+    setEndWord(newEndWord);
+    console.log(startWord)
     setIsOpen(true);
     for (let i = 0; i < 5; i++) {
-      newWordGrid[0].push({ letter: keyWordsStart[startWord + 1][i], color: 0, disabled:true, wrong:false })
-      newWordGrid[5].push({ letter: keyWordsEnd[endWord + 1][i], color: 0, disabled:true, wrong:false   })
+      newWordGrid[0].push({ letter: keyWordsStart[newStartWord][i], color: 0, disabled:true, wrong:false })
+      newWordGrid[5].push({ letter: keyWordsEnd[newEndWord][i], color: 0, disabled:true, wrong:false   })
     }
     for (let i = 1; i < 5; i++) {
       for (let j = 0; j < 5; j++) {
@@ -177,7 +190,11 @@ function App() {
       }
     }
     newWordGrid[1][0].disabled=false;
+    setCurrentColor(2);
     setWordGrid(newWordGrid);
+    setCurrentFocusedRow(1);
+    setCurrentFocusedColumn(0);
+    document.getElementById("10").focus();
   }
 
   const handleRules = () => {
@@ -190,15 +207,14 @@ function App() {
     const currentWord = newWordGrid[currentFocusedRow];
     let isCorrect = true;
 
-    // todo check to see if its in giant word list
-
-    // check word is "one away"/meets transform rules
+    // check is a word
     let wordCheck = "";
     for(let i = 0; i < currentWord.length; i++){
       wordCheck += currentWord[i].letter;
     }
     if (words.includes(wordCheck))
     {
+      // check word is "one away"/meets transform rules
       let output = checkOneAway(priorWord, currentWord, false);
       isCorrect = output[0];
 
@@ -228,9 +244,11 @@ function App() {
         setCurrentFocusedColumn(0);
 
       }
-      output = checkOneAway(currentWord, end, true)
+
+      output = checkOneAway(currentWord, keyWordsEnd[endWord], true)
       if (isCorrect && output[0]) {
         let currentChanged = output[1];
+        console.log(currentChanged)
         let endChanged = output[2];
         let times = output[3];
         for(let i = 0; i < priorWord.length; i++){
@@ -247,6 +265,7 @@ function App() {
         setIsGameOver(true);
         document.getElementById((currentFocusedRow + 1).toString() + "0").blur();
         newWordGrid[currentFocusedRow + 1][0].disabled = true;
+        setVictoryIsOpen(true);
       }
     } else{
       isCorrect = false;
@@ -255,8 +274,6 @@ function App() {
       for(let i = 0; i < 5; i++){
         newWordGrid[currentFocusedRow][i].wrong = true;
       }
-      setIsGameOver(true);
-      setVictoryIsOpen(true);
     }
     setWordGrid(newWordGrid);
   };
@@ -291,11 +308,17 @@ function App() {
       {rulesIsOpen && <Popup
       content={<>
         <b className='victory'>Rules</b>
-        <p>Transform and scramble words letter at a time. Change one of the letters in the word at a time and turn it into a new word.<br/> 
-          Changing one letter in a word changes all the other letters in that word that are the same.<br/> For example, for o-{'>'}e, woody becomes weedy. 
-          The goal is to transform the starting word to the final word!<br/>
+        <p align="left" >Transform the start word to the final word.<br/>
+        For each step:<br/>
+        <ul display="inline-block" text-align="left">
+          <li>Change one letter to any other letter</li>
+          <li>All instances of the letter must change</li>
+          <li>Only real words are allowed</li>
+        </ul>
+        For example, for o->e, woody becomes weedy.     
+        <br/>    
+        You have 5 steps. Enjoy!
         </p>
-        
         </>}
       handleClose={toggleRulesPopup}
       />}
@@ -303,7 +326,7 @@ function App() {
     {isOpen && <Popup
       content={<>
         <b>Cougs help Cougs!</b>
-        <p>Coug Word Game</p>
+        <p>Coug Word of the Game</p>
         <b>"{keyWordsStart[startWord]}"</b>
         <p>{phrases[keyWordsStart[startWord]]}</p>
         <a href={phraseLink[startWord]}>Click Here To Learn More!</a>
@@ -381,7 +404,7 @@ const SubmitButton = styled.button`
   background-color: #981E32;
   border-color: #981E32;
   padding: 14px;
-  margin: 32px;
+  margin: 20px;
 `;
 
 const CougleTitle = styled.h1`
