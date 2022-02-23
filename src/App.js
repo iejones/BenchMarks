@@ -1,47 +1,36 @@
 import { useEffect, useState } from 'react';
-import React, { Component }  from 'react';
-import styled from "styled-components";
+import React from 'react';
 import './App.css';
-import './style.css';
-import Popup from './Popup';
-import words from "./words.js"
-
-const phrases = {
-  "tutor":"Stuck on a homework assignment? Don’t go it alone - visit a TUTOR! Access tutoring for your VCEA classes in person or online. Visit the VCEA tutoring schedule for more information.",
-  "meals":"Cougs don't let cougs go hungry. Get assistance from the cougar food pantry!",
-  "cream":"Visit the WSU Creamery - Ferdinands - for some delicious cheese and ice CREAM.",
-  "frank":"Interested in entrepreneurship? The Harold FRANK Engineering Entrepreneurship Institute has opportunities for you!",
-  "apply":"Are you ready to apply for internships and full-time positions? Don't be intimidated. VCEA Internships and Career Services has the resources, workshops, and one-on-one help you need.",
-  "clubs":"Meet your peers and gain hands-on experience by joining a club! Look at all the clubs VCEA has to offer."
-}
-const phraseLink = {0:"https://vcea.wsu.edu/student-success/tutoring/tutoring-schedule/", 1:"https://studentcare.wsu.edu/student-resources/food-assistance/wsu-pullman/", 2:"https://creamery.wsu.edu/ferdinands-ice-cream-shoppe/", 3:"https://vcea.wsu.edu/entrepreneurship/", 4:"https://vcea.wsu.edu/student-success/internships-careers/", 5:"https://vcea.wsu.edu/student-success/clubs/"};
-const keyWordsStart = {0:"tutor", 1:"meals", 2:"cream", 3:"frank", 4:"apply", 5:"clubs"};
-const keyWordsEnd = {0:"apple",1:"brood", 2:"bunks", 3: "boils" , 4:"shoes" ,5:"troop"};
-const colors = {0:"#53565A", 1:"grey", 2: "#4172F3", 3:"#A012DA", 4:"#DC267F", 5:"#FE6100", 6:"#FFB000"};
+import './Components/Popup.css';
+import Popup from './Components/Popup';
+import { Letter, Div, RowWrapper, SubmitButton, Title } from './Components/myStyledComponents.js';
+import words from "./Constants/words.js";
+import { namedColors } from './Constants/colors.js';
+import {phrases, phraseLink, startWords, endWords} from './Constants/wordSets.js';
 
 function App() {
   const [wordGrid, setWordGrid] = useState([]);
-  const [currentColor, setCurrentColor] = useState(2);
+  const [currentColor, setCurrentColor] = useState(0);
   const [currentFocusedRow, setCurrentFocusedRow] = useState(1);
   const [currentFocusedColumn, setCurrentFocusedColumn] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
-  //const start = "meals";
- // const end = "bongo";
-  // const start = "tutor";
-  // const end = "apple";
-  console.log(typeof(words));
   const [isVictoryOpen, setVictoryIsOpen] = useState(false);
+  const [isVictory, setVictory] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
   const [rulesIsOpen, setRulesIsOpen] = useState(true);
-  const [startWord, setStartWord] = useState(0);
-  const [endWord, setEndWord] = useState(0);
+  const [startWord, setStartWord] = useState(-1);
+  const [endWord, setEndWord] = useState(-1);
+  const rows = 6;
+  const columns = 5;
+  const games = startWords.length;
+
+  // popup toggle functions
   const togglePopup = () => {
     if(isOpen){
       // reset focus
       document.getElementById(currentFocusedRow.toString() + currentFocusedColumn.toString()).focus();
     }
     setIsOpen(!isOpen);
-    console.log(isOpen);
   }
   const toggleRulesPopup = () => {
     if(rulesIsOpen){
@@ -49,68 +38,34 @@ function App() {
       document.getElementById(currentFocusedRow.toString() + currentFocusedColumn.toString()).focus();
     }
     setRulesIsOpen(!rulesIsOpen);
-    console.log(rulesIsOpen);
   }
-
   const toggleVictoryPopup = () => {
     setVictoryIsOpen(!isVictoryOpen);
-    console.log("Disabling")
-    console.log(isVictoryOpen);
   }
 
-  useEffect(() => {
-    function initializeWordGrid() {
-      let newWordGrid = [];
-      for (let i = 0; i < 6; i++) {
-        newWordGrid.push([])
-      }
-
-      for (let i = 0; i < 5; i++) {
-        newWordGrid[0].push({ letter: keyWordsStart[startWord][i], color: 0, disabled:true, wrong:false })
-        newWordGrid[5].push({ letter: keyWordsEnd[endWord][i], color: 0, disabled:true, wrong:false   })
-      }
-
-      for (let i = 1; i < 5; i++) {
-        for (let j = 0; j < 5; j++) {
-          newWordGrid[i].push({ letter: "", color: 1, disabled:true, wrong:false  })
-        }
-      }
-      newWordGrid[1][0].disabled=false;
-
-      setWordGrid(newWordGrid);
-    }
-
+  useEffect(() => { 
+    // if word grid is empty (first render), initialize
     if (wordGrid.length === 0) {
-      initializeWordGrid();
+      handleNewGame(true); // don't allow to focus because the element doesn't exist yet, will error. Rules window will be focus when closed.
     }
   });
 
 
-  const handleChange = (e, row, column) => {
+  const handleLetterChange = (e, row, column) => {
     const newWordGrid = [...wordGrid]
-    console.log(e.nativeEvent.inputType);
-    if ( e.nativeEvent.inputType=== "deleteContentBackward"){
-      newWordGrid[row][column].letter = '';
-      if (currentFocusedColumn > 0){
-        setCurrentFocusedColumn(currentFocusedColumn - 1);
-        newWordGrid[row][column].disabled = true;
-        newWordGrid[row][column - 1].disabled = false;
-      }
-    }
 
+    // check input is lowercase letter
     if (e.target.value.match(/^[a-z]$/)) {
+      // update the value at the input position to the inputed letter
       newWordGrid[row][column].letter = e.target.value;
-      console.log(newWordGrid[row][column].letter)
       
-      if (currentFocusedColumn  < 4){
+      // if not last letter in word
+      if (currentFocusedColumn  < columns - 1){
+        // move cursor/focus to the next letter
         setCurrentFocusedColumn(currentFocusedColumn + 1);
-        console.log(column+1);
         newWordGrid[row][column + 1].disabled = false;
-
         document.getElementById(row.toString() + column.toString()).blur();
-        let nextBox = document.getElementById(row.toString() + (column + 1).toString());
-        nextBox.focus();
-        //newWordGrid[row][column ].disabled = true;
+        document.getElementById(row.toString() + (column + 1).toString()).focus();
       }
     } 
     setWordGrid(newWordGrid);
@@ -123,6 +78,8 @@ function App() {
     var origonalCurrentWord = "";
     var discarded = "";
     var isCorrect = true;
+    // make a copy of the prior word and two copies of the current word
+    // copies are strings of just the characters, not all the values associated with Letters
     for (let i = 0; i < priorWord.length; i++) {
       priorWordCopy += priorWord[i].letter;
       if (endFlag) {
@@ -134,6 +91,7 @@ function App() {
       }
     }
 
+    // for each letter in both the prior and current word, remove the letter from the copies. Keep track of removed letters in discarded string
     for (let i = 0; i < priorWord.length; i++) {
       if (origonalCurrentWord.includes(priorWord[i].letter)) {
         priorWordCopy = priorWordCopy.replace(priorWord[i].letter, "");
@@ -142,24 +100,23 @@ function App() {
       }
     }
     
-    console.log(priorWordCopy);
-    console.log(currentWordCopy);
+    // check every character left prior word copy is the same
     for (let i = 1; i < priorWordCopy.length; i++) {
       if (priorWordCopy[i] !== priorWordCopy[0]) {
         isCorrect = false;
-        console.log("hit1");
       }
     }
+    // if no remaining characters, the words have the same letters (no change in letters)
     if (priorWordCopy.length === 0 && currentWordCopy.length === 0) {
       isCorrect = false;
     }
+    // check there is the same number of characters remaining in the prior word and current word
     if (priorWordCopy.length !== currentWordCopy.length) {
-      console.log("hit2");
       isCorrect = false;
     }
+    // check that the character in priror word copy was not also discarded (every instance must change)
     if (discarded.includes(priorWordCopy[0])) {
       isCorrect = false;
-      console.log("hit3");
     }
 
     if (!isCorrect)
@@ -167,37 +124,44 @@ function App() {
     else
       return [isCorrect, priorWordCopy[0], currentWordCopy[0], priorWordCopy.length];
   }
-  const handleNewGame = () => {
+
+  const handleNewGame = (first) => {
+    // make new grid
     let newWordGrid = [];
-    for (let i = 0; i < 6; i++) {
-      newWordGrid.push([])
+    for (let i = 0; i < rows; i++) {
+      newWordGrid.push([]);
     }
 
-    let newStartWord = (startWord + 1) % 6; // set won't occur until after function ends, so need temp for call below so wrapped around (+ 1 will not work for wrapping around)
-    let newEndWord = (endWord + 1 )% 6;
-    setStartWord(newStartWord);
-    setEndWord(newEndWord);
-    console.log(startWord)
-    setIsOpen(true);
-    for (let i = 0; i < 5; i++) {
-      newWordGrid[0].push({ letter: keyWordsStart[newStartWord][i], color: 0, disabled:true, wrong:false })
-      newWordGrid[5].push({ letter: keyWordsEnd[newEndWord][i], color: 0, disabled:true, wrong:false   })
+    // set start and end word
+    let newStartWord = (startWord + 1) % games; // set won't occur until after function ends, so need temp for call below so wrapped around (+ 1 will not work for wrapping around)
+    let newEndWord = (endWord + 1 )% games;
+    for (let i = 0; i < columns; i++) {
+      newWordGrid[0].push({ letter: startWords[newStartWord][i], color: 'dark_grey', disabled:true, wrong:false });
+      newWordGrid[rows - 1].push({ letter: endWords[newEndWord][i], color: 'dark_grey', disabled:true, wrong:false});
     }
-    for (let i = 1; i < 5; i++) {
-      for (let j = 0; j < 5; j++) {
-        newWordGrid[i].push({ letter: "", color: 1, disabled:true, wrong:false  })
+
+    // set middle rows
+    for (let i = 1; i < columns; i++) {
+      for (let j = 0; j < columns; j++) {
+        newWordGrid[i].push({ letter: "", color: 'medium_grey', disabled:true, wrong:false  });
       }
     }
+
     newWordGrid[1][0].disabled=false;
-    setCurrentColor(2);
+    if ( first === false){
+      // focus/move cursor to start of first entry row
+      document.getElementById("10").focus();
+    }
+
+    // set values
     setWordGrid(newWordGrid);
+    setCurrentColor(0);
+    setIsOpen(true);
     setCurrentFocusedRow(1);
     setCurrentFocusedColumn(0);
-    document.getElementById("10").focus();
-  }
-
-  const handleRules = () => {
-    setRulesIsOpen(!rulesIsOpen);
+    setStartWord(newStartWord);
+    setEndWord(newEndWord);
+    setVictory(false);
   }
 
   const handleSubmit = () => {
@@ -206,85 +170,109 @@ function App() {
     const currentWord = newWordGrid[currentFocusedRow];
     let isCorrect = true;
 
-    // check is a word
-    let wordCheck = "";
+    // get just the letters of the entered word
+    let enteredWord = "";
     for(let i = 0; i < currentWord.length; i++){
-      wordCheck += currentWord[i].letter;
+      enteredWord += currentWord[i].letter;
     }
-    if (words.includes(wordCheck))
+    // check is a word
+    if (words.includes(enteredWord))
     {
-      // check word is "one away"/meets transform rules
+      // check word is "one away"/meets transform rules from last word
       let output = checkOneAway(priorWord, currentWord, false);
       isCorrect = output[0];
 
+      // if it is valid, move forward to next word and color the transformed letters
       if (isCorrect === true) {
         let priorChanged = output[1];
         let currentChanged = output[2];
         let times = output[3];
+        // set changed letters' colors
         for(let i = 0; i < priorWord.length; i++){
           if(priorWord[i].letter === priorChanged){
             newWordGrid[currentFocusedRow - 1][i].color = currentColor;
           }
           if(currentWord[i].letter === currentChanged){
-            if (times > 0){
+            if (times > 0){ // could have changed to a letter that was already in word, in which case we want to color only the exact number that were result of transformation
               newWordGrid[currentFocusedRow][i].color = currentColor;
               times = times - 1;
             }
           }
         }
+        // advance change color for next row
         setCurrentColor(currentColor + 1);
-        console.log(isCorrect);
-        newWordGrid[currentFocusedRow + 1][0].disabled=false;
-        for (let i =0; i < 5; i++){
+        
+        // disable entered word row
+        for (let i =0; i < columns; i++){
           newWordGrid[currentFocusedRow][i].disabled=true;
         }
+        // set focus to start of next word
+        newWordGrid[currentFocusedRow + 1][0].disabled=false;
         document.getElementById((currentFocusedRow + 1).toString() + "0").focus();
         setCurrentFocusedRow(currentFocusedRow + 1);
         setCurrentFocusedColumn(0);
 
-      }
-
-      output = checkOneAway(currentWord, keyWordsEnd[endWord], true)
-      if (isCorrect && output[0]) {
-        let currentChanged = output[1];
-        console.log(currentChanged)
-        let endChanged = output[2];
-        let times = output[3];
-        for(let i = 0; i < priorWord.length; i++){
-          if(currentWord[i].letter === currentChanged){
-            newWordGrid[currentFocusedRow][i].color = currentColor+1;
-          }
-          if(newWordGrid[5][i].letter === endChanged){
-            if(times > 0){
-              newWordGrid[5][i].color = currentColor+1;
-              times = times - 1;
+        // check if entered word is one away from the end word
+        output = checkOneAway(currentWord, endWords[endWord], true)
+        if ( output[0]) {
+          // won game
+          let currentChanged = output[1];
+          let endChanged = output[2];
+          let times = output[3];
+          // color transform from entered word to end word
+          for(let i = 0; i < priorWord.length; i++){
+            if(currentWord[i].letter === currentChanged){
+              newWordGrid[currentFocusedRow][i].color = currentColor+1;
+            }
+            if(newWordGrid[rows - 1][i].letter === endChanged){
+              if(times > 0){
+                newWordGrid[rows - 1][i].color = currentColor+1;
+                times = times - 1;
+              }
             }
           }
+          // remove focus (don't allow to enter anywhere on winning board)
+          document.getElementById((currentFocusedRow + 1).toString() + "0").blur();
+          newWordGrid[currentFocusedRow + 1][0].disabled = true;
+          // set game over and set victory pop up to open
+          setIsGameOver(true);
+          setVictoryIsOpen(true);
+          setVictory(true);
+        }else if (currentFocusedRow === rows -2){
+          // did not win, but used up tries
+          // do not allow to focus on end row
+          document.getElementById((currentFocusedRow + 1).toString() + "0").blur();
+          newWordGrid[currentFocusedRow + 1][0].disabled = true;
+          // set game over and set victory false
+          setIsGameOver(true);
+          setVictory(false);
+          setVictoryIsOpen(true);
         }
-        setIsGameOver(true);
-        document.getElementById((currentFocusedRow + 1).toString() + "0").blur();
-        newWordGrid[currentFocusedRow + 1][0].disabled = true;
-        setVictoryIsOpen(true);
       }
     } else{
+      // if entered letters are not a word, not a valid entry
       isCorrect = false;
     }
+
+    // if not correct, set letter wrong value
     if (!isCorrect){
       for(let i = 0; i < 5; i++){
         newWordGrid[currentFocusedRow][i].wrong = true;
       }
     }
+
     setWordGrid(newWordGrid);
   };
-
 
   function backspace(event, row, column){
     var key = event.keyCode || event.charCode;
     let currentColumn = 4;
-    if (key === 8 && (row !== 0 && row !== 5 && row >= currentFocusedRow))
+    // when press backspace and row is not end or start row, and row is not a previously entered row
+    if (key === 8 && (row !== 0 && row !== rows-1 && row >= currentFocusedRow))
     {
       const newWordGrid = [...wordGrid];
       
+      // erase the letters in this row/word
       while (currentColumn >= 0){
         newWordGrid[row][currentColumn].letter = '';
         newWordGrid[row][currentColumn].disabled = true;
@@ -292,12 +280,14 @@ function App() {
         document.getElementById(row.toString() + column.toString()).blur();
         currentColumn--;
       }
+      // set focus back on first letter of the word
       newWordGrid[row][0].disabled = false;
       document.getElementById(row.toString() + "0").focus();
       setCurrentFocusedColumn(0);
       setWordGrid(newWordGrid);
     }
     else if(key === 13){
+      // treat "enter" as submit
       handleSubmit();
     }
   }
@@ -306,18 +296,21 @@ function App() {
     <Div>
       {rulesIsOpen && <Popup
       content={<>
-        <b className='victory'>Rules</b>
-        <p align="left" >Transform the start word to the final word.<br/>
+        <b className='victory'>How To Play</b>
+        <div align="center">
+        <div align="left" >Transform the start word to the final word.<br/>
         For each step:<br/>
         <ul display="inline-block" text-align="left">
           <li>Change one letter to any other letter</li>
           <li>All instances of the letter must change</li>
           <li>Only real words are allowed</li>
+          <li>Scrambling the letters is allowed</li>
         </ul>
-        For example, for o->e, woody becomes weedy.     
+        For example, with e->o, these becomes shoot.     
         <br/>    
         You have 5 steps. Enjoy!
-        </p>
+        </div>
+        </div>
         </>}
       handleClose={toggleRulesPopup}
       />}
@@ -326,15 +319,15 @@ function App() {
       content={<>
         <b>Cougs help Cougs!</b>
         <p>Coug Word of the Game</p>
-        <b>"{keyWordsStart[startWord]}"</b>
-        <p>{phrases[keyWordsStart[startWord]]}</p>
+        <b>"{startWords[startWord]}"</b>
+        <p>{phrases[startWords[startWord]]}</p>
         <a href={phraseLink[startWord]}>Click Here To Learn More!</a>
         </>}
       handleClose={togglePopup}
       />}
 
-      <CougleTitle><span style={{ color: '#981E32' }}>Coug</span><span style={{ color: '#53565A' }}>le</span></CougleTitle>
-      {isGameOver && isVictoryOpen && <Popup
+      <Title><span style={{ color: '#981E32' }}>Coug</span><span style={{ color: '#53565A' }}>le</span></Title>
+      {isGameOver && isVictoryOpen && isVictory && <Popup
       content={<>
         <b className='victory'>Victory!</b>
         <br></br>
@@ -343,71 +336,38 @@ function App() {
         }
         handleClose={toggleVictoryPopup}
       />}
+       {isGameOver && isVictoryOpen && ! isVictory && <Popup //need to check not victory
+      content={<>
+        <b className='victory'>Game Over!</b>
+        <br></br>
+        <b className='center'>Better luck next time.</b>
+        </>
+        }
+        handleClose={toggleVictoryPopup}
+      />}
       {wordGrid.map((row, rowIndex) => (
         <RowWrapper key={rowIndex}>
           {row.map((col, colIndex) => (
             <Letter
-              status={col.color}
+              bgcolor={col.color}
               key={colIndex}
               value={wordGrid[rowIndex][colIndex].letter}
-              onChange={(e) => handleChange(e, rowIndex, colIndex)}
+              onChange={(e) => handleLetterChange(e, rowIndex, colIndex)}
               readOnly={wordGrid[rowIndex][colIndex].disabled}
-              autoFocus={!wordGrid[rowIndex][colIndex].disabled}
               onKeyDown = {(e) => backspace(e, rowIndex, colIndex)}
               id = {rowIndex.toString() + colIndex.toString()}
-              style={wordGrid[rowIndex][colIndex].wrong ? { color: '#D2042D' } : { color: 'black' }}
+              style={wordGrid[rowIndex][colIndex].wrong ? { color: namedColors['wrong_red'] } : { color: 'black' }}
             />
           ))}
         </RowWrapper>
       ))}
       <SubmitButton onClick={handleSubmit}>Submit</SubmitButton>
-      <row>
-        <SubmitButton style={{marginRight: "4px"}} onClick={handleNewGame}>New Game</SubmitButton>
-        <SubmitButton onClick={handleRules}>Rules</SubmitButton>
-      </row>
+      <RowWrapper>
+        <SubmitButton style={{marginRight: "4px"}} onClick={() => handleNewGame(false)}>New Game</SubmitButton>
+        <SubmitButton onClick={toggleRulesPopup}>Rules</SubmitButton>
+      </RowWrapper>
     </Div>
   );
 }
-
-const Letter = styled.input`
-  font-size:56px;
-  background-color: ${(props) => {
-    return colors[props.status];
-  }};
-  margin-right: 2px;
-  margin-bottom: 6px;
-  margin-top: 2px;
-  padding: 5px;
-  border-color: #53565A;
-  width: 60px;
-  height: 60px;
-  text-align: center;
-  border-radius: 8px;
-`;
-
-const Div = styled.div`
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const RowWrapper = styled.div`
-  display: flex;
-  gap: 8px;
-`;
-
-const SubmitButton = styled.button`
-  font-size: 30px;
-  border-radius: 8px;
-  background-color: #981E32;
-  border-color: #981E32;
-  padding: 14px;
-  margin: 20px;
-`;
-
-const CougleTitle = styled.h1`
-  font-size: 52px;
-`
 
 export default App;
