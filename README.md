@@ -9,8 +9,9 @@ For each step:
 * Change one letter to any other letter
 * All instances of the letter must change
 * Only real words are allowed
+* Scrambling the letters is allowed
 
-For example, for o->e, woody becomes weedy.     
+For example, with e->o, "these" becomes "shoot".     
  
 You have 5 steps.
 
