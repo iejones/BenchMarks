@@ -15,8 +15,11 @@ For example, with e->o, "these" becomes "shoot".
  
 You have 5 steps.
 
-## Example
+### Examples
+There can be more than one solution path. Here are some for "bench" to "marks".
+
 bench -> beach -> reach -> march -> marsh -> marks
+
 bench -> beach -> reach -> share -> shark -> marks
 # Hackathon Start
 This project started at a the WSU Crimson Code Hackathon 2022.
